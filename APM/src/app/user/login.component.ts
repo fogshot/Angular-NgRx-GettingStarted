@@ -1,22 +1,20 @@
-import { Component, OnDestroy, OnInit } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import { NgForm } from '@angular/forms';
 import { Router } from '@angular/router';
 
 import { AuthService } from './auth.service';
 import { Store } from '@ngrx/store';
-import { Subscription } from 'rxjs';
+import { getMaskUserName } from './state/user.reducer';
+import { toggleMaskUserName } from './state/user.actions';
+import { Observable } from 'rxjs';
 
 @Component({
   templateUrl: './login.component.html',
   styleUrls: ['./login.component.css'],
 })
-export class LoginComponent implements OnInit, OnDestroy {
+export class LoginComponent implements OnInit {
   pageTitle = 'Log In';
-
-  maskUserName: boolean;
-
-  private _sub = new Subscription();
-
+  maskUserName$: Observable<boolean>;
   constructor(
     private authService: AuthService,
     private router: Router,
@@ -24,13 +22,7 @@ export class LoginComponent implements OnInit, OnDestroy {
   ) {}
 
   ngOnInit(): void {
-    this._sub.add(
-      this.store.select('users').subscribe((users) => {
-        if (users) {
-          this.maskUserName = users.userReducer.maskUsername;
-        }
-      }),
-    );
+    this.maskUserName$ = this.store.select(getMaskUserName);
   }
 
   cancel(): void {
@@ -38,7 +30,7 @@ export class LoginComponent implements OnInit, OnDestroy {
   }
 
   checkChanged(): void {
-    this.store.dispatch({ type: '[User] Toggle Username Masking' });
+    this.store.dispatch(toggleMaskUserName());
   }
 
   login(loginForm: NgForm): void {
@@ -53,9 +45,5 @@ export class LoginComponent implements OnInit, OnDestroy {
         this.router.navigate(['/products']);
       }
     }
-  }
-
-  ngOnDestroy(): void {
-    this._sub.unsubscribe();
   }
 }
