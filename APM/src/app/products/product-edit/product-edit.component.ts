@@ -9,7 +9,7 @@ import { Store } from '@ngrx/store';
 import { getCurrentProduct } from '../state/product.reducer';
 import {
   clearCurrentProduct,
-  setCurrentProduct,
+  createProduct,
   updateProduct,
 } from '../state/product.actions';
 import { Observable } from 'rxjs';
@@ -146,13 +146,7 @@ export class ProductEditComponent implements OnInit {
         const product = { ...originalProduct, ...this.productForm.value };
 
         if (product.id === 0) {
-          this.productService.createProduct(product).subscribe({
-            next: (p) =>
-              this.store.dispatch(
-                setCurrentProduct({ currentProductId: p.id }),
-              ),
-            error: (err) => (this.errorMessage = err),
-          });
+          this.store.dispatch(createProduct({ product }));
         } else {
           this.store.dispatch(updateProduct({ product }));
         }
