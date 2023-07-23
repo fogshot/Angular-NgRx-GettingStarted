@@ -10,6 +10,7 @@ import { getCurrentProduct } from '../state/product.reducer';
 import {
   clearCurrentProduct,
   setCurrentProduct,
+  updateProduct,
 } from '../state/product.actions';
 import { Observable } from 'rxjs';
 import { tap } from 'rxjs/operators';
@@ -153,13 +154,7 @@ export class ProductEditComponent implements OnInit {
             error: (err) => (this.errorMessage = err),
           });
         } else {
-          this.productService.updateProduct(product).subscribe({
-            next: (p) =>
-              this.store.dispatch(
-                setCurrentProduct({ currentProductId: p.id }),
-              ),
-            error: (err) => (this.errorMessage = err),
-          });
+          this.store.dispatch(updateProduct({ product }));
         }
       }
     }

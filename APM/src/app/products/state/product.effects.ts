@@ -5,8 +5,11 @@ import {
   loadProducts,
   loadProductsFailure,
   loadProductsSuccess,
+  updateProduct,
+  updateProductFailure,
+  updateProductSuccess,
 } from './product.actions';
-import { catchError, map, mergeMap } from 'rxjs/operators';
+import { catchError, concatMap, map, mergeMap } from 'rxjs/operators';
 import { of } from 'rxjs';
 
 @Injectable()
@@ -23,6 +26,18 @@ export class ProductEffects {
         this.productService.getProducts().pipe(
           map((products) => loadProductsSuccess({ products })),
           catchError((error) => of(loadProductsFailure({ error }))),
+        ),
+      ),
+    );
+  });
+
+  updateProduct$ = createEffect(() => {
+    return this.actions$.pipe(
+      ofType(updateProduct),
+      concatMap((action) =>
+        this.productService.updateProduct(action.product).pipe(
+          map((p) => updateProductSuccess({ product: p })),
+          catchError((error) => of(updateProductFailure({ error }))),
         ),
       ),
     );
