@@ -1,22 +1,30 @@
-import { Component, OnInit } from '@angular/core';
+import {
+  ChangeDetectionStrategy,
+  Component,
+  EventEmitter,
+  Input,
+  OnChanges,
+  OnInit,
+  Output,
+  SimpleChanges,
+} from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 
 import { Product } from '../product';
 import { GenericValidator } from '../../shared/generic-validator';
 import { NumberValidators } from '../../shared/number.validator';
-import { Store } from '@ngrx/store';
-import { getCurrentProduct } from '../state';
-import { ProductPageActions } from '../state/actions';
-import { Observable } from 'rxjs';
-import { tap } from 'rxjs/operators';
 
 @Component({
   selector: 'pm-product-edit',
   templateUrl: './product-edit.component.html',
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class ProductEditComponent implements OnInit {
+export class ProductEditComponent implements OnInit, OnChanges {
   pageTitle = 'Product Edit';
-  errorMessage = '';
+  @Input() product: Product | null;
+  @Input() errorMessage: string;
+  @Output() productSaved = new EventEmitter<Product>();
+  @Output() productDeleted = new EventEmitter<Product>();
   productForm: FormGroup;
   // Use with the generic validation message class
   displayMessage: { [key: string]: string } = {};
@@ -24,12 +32,8 @@ export class ProductEditComponent implements OnInit {
     [key: string]: { [key: string]: string };
   };
   private genericValidator: GenericValidator;
-  product$: Observable<Product | null>;
 
-  constructor(
-    private fb: FormBuilder,
-    private store: Store<Product>,
-  ) {
+  constructor(private fb: FormBuilder) {
     // Defines all of the validation messages for the form.
     // These could instead be retrieved from a file or database.
     this.validationMessages = {
@@ -66,11 +70,6 @@ export class ProductEditComponent implements OnInit {
       starRating: ['', NumberValidators.range(1, 5)],
       description: '',
     });
-
-    // Watch for changes to the currently selected product
-    this.product$ = this.store
-      .select(getCurrentProduct)
-      .pipe(tap((product) => this.displayProduct(product)));
 
     // Watch for value changes for validation
     this.productForm.valueChanges.subscribe(
@@ -118,14 +117,7 @@ export class ProductEditComponent implements OnInit {
   }
 
   deleteProduct(product: Product): void {
-    if (product && product.id) {
-      if (confirm(`Really delete the product: ${product.productName}?`)) {
-        this.store.dispatch(ProductPageActions.deleteProduct({ product }));
-      }
-    } else {
-      // No need to delete, it was never saved
-      this.store.dispatch(ProductPageActions.clearCurrentProduct());
-    }
+    this.productDeleted.emit(product);
   }
 
   saveProduct(originalProduct: Product): void {
@@ -135,13 +127,14 @@ export class ProductEditComponent implements OnInit {
         // Then copy over the values from the form
         // This ensures values not on the form, such as the Id, are retained
         const product = { ...originalProduct, ...this.productForm.value };
-
-        if (product.id === 0) {
-          this.store.dispatch(ProductPageActions.createProduct({ product }));
-        } else {
-          this.store.dispatch(ProductPageActions.updateProduct({ product }));
-        }
+        this.productSaved.emit(product);
       }
+    }
+  }
+
+  ngOnChanges(changes: SimpleChanges): void {
+    if (changes.product) {
+      this.displayProduct(this.product);
     }
   }
 }
