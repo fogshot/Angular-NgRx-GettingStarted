@@ -6,12 +6,8 @@ import { ProductService } from '../product.service';
 import { GenericValidator } from '../../shared/generic-validator';
 import { NumberValidators } from '../../shared/number.validator';
 import { Store } from '@ngrx/store';
-import { getCurrentProduct } from '../state/product.reducer';
-import {
-  clearCurrentProduct,
-  createProduct,
-  updateProduct,
-} from '../state/product.actions';
+import { getCurrentProduct } from '../state';
+import { ProductPageActions } from '../state/actions';
 import { Observable } from 'rxjs';
 import { tap } from 'rxjs/operators';
 
@@ -25,7 +21,7 @@ export class ProductEditComponent implements OnInit {
   productForm: FormGroup;
   // Use with the generic validation message class
   displayMessage: { [key: string]: string } = {};
-  private validationMessages: {
+  private readonly validationMessages: {
     [key: string]: { [key: string]: string };
   };
   private genericValidator: GenericValidator;
@@ -127,13 +123,14 @@ export class ProductEditComponent implements OnInit {
     if (product && product.id) {
       if (confirm(`Really delete the product: ${product.productName}?`)) {
         this.productService.deleteProduct(product.id).subscribe({
-          next: () => this.store.dispatch(clearCurrentProduct()),
+          next: () =>
+            this.store.dispatch(ProductPageActions.clearCurrentProduct()),
           error: (err) => (this.errorMessage = err),
         });
       }
     } else {
       // No need to delete, it was never saved
-      this.store.dispatch(clearCurrentProduct());
+      this.store.dispatch(ProductPageActions.clearCurrentProduct());
     }
   }
 
@@ -146,9 +143,9 @@ export class ProductEditComponent implements OnInit {
         const product = { ...originalProduct, ...this.productForm.value };
 
         if (product.id === 0) {
-          this.store.dispatch(createProduct({ product }));
+          this.store.dispatch(ProductPageActions.createProduct({ product }));
         } else {
-          this.store.dispatch(updateProduct({ product }));
+          this.store.dispatch(ProductPageActions.updateProduct({ product }));
         }
       }
     }

@@ -1,4 +1,4 @@
-<div class="card" *ngIf="vm$ | async as vm">
+<div class="card" *ngIf="vm">
 
   <div class="card-header">
     {{pageTitle}}
@@ -37,7 +37,7 @@
     </div>
   </div>
 </div>
-<div *ngIf="errorMessage$ | async as errorMessage"
+<div *ngIf="errorMessage"
      class="alert alert-danger">
   Error: {{ errorMessage }}
 </div>
