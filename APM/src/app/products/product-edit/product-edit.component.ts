@@ -24,7 +24,9 @@ export class ProductEditComponent implements OnInit {
   productForm: FormGroup;
   // Use with the generic validation message class
   displayMessage: { [key: string]: string } = {};
-  private validationMessages: { [key: string]: { [key: string]: string } };
+  private validationMessages: {
+    [key: string]: { [key: string]: string };
+  };
   private genericValidator: GenericValidator;
   product$: Observable<Product | null>;
 
@@ -144,12 +146,18 @@ export class ProductEditComponent implements OnInit {
 
         if (product.id === 0) {
           this.productService.createProduct(product).subscribe({
-            next: (p) => this.store.dispatch(setCurrentProduct({ product: p })),
+            next: (p) =>
+              this.store.dispatch(
+                setCurrentProduct({ currentProductId: p.id }),
+              ),
             error: (err) => (this.errorMessage = err),
           });
         } else {
           this.productService.updateProduct(product).subscribe({
-            next: (p) => this.store.dispatch(setCurrentProduct({ product: p })),
+            next: (p) =>
+              this.store.dispatch(
+                setCurrentProduct({ currentProductId: p.id }),
+              ),
             error: (err) => (this.errorMessage = err),
           });
         }
