@@ -20,14 +20,19 @@ export const initializeCurrentProduct = createAction(
   '[Product Page] Initialize Current Product',
 );
 
-export const loadProducts = createAction('[Product Page] Load');
+export const createProduct = createAction(
+  '[Product Page] Create',
+  props<{ product: Product }>(),
+);
+
+export const loadProducts = createAction('[Product Page] Read');
 
 export const updateProduct = createAction(
   '[Product Page] Update',
   props<{ product: Product }>(),
 );
 
-export const createProduct = createAction(
-  '[Product Page] Create',
+export const deleteProduct = createAction(
+  '[Product Page] Delete',
   props<{ product: Product }>(),
 );

@@ -87,4 +87,14 @@ export const productReducer = createReducer<ProductState>(
       error: action.error,
     };
   }),
+  on(ProductApiActions.deleteProductSuccess, (state, action): ProductState => {
+    return {
+      ...state,
+      currentProductId: null,
+      products: state.products.filter(
+        (value) => value.id !== action.product.id,
+      ),
+      error: '',
+    };
+  }),
 );

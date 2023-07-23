@@ -55,4 +55,20 @@ export class ProductEffects {
       ),
     );
   });
+
+  deleteProduct$ = createEffect(() => {
+    return this.actions$.pipe(
+      ofType(ProductPageActions.deleteProduct),
+      concatMap((action) =>
+        this.productService.deleteProduct(action.product.id).pipe(
+          map(() =>
+            ProductApiActions.deleteProductSuccess({ product: action.product }),
+          ),
+          catchError((err) =>
+            of(ProductApiActions.deleteProductFailure({ error: err })),
+          ),
+        ),
+      ),
+    );
+  });
 }
